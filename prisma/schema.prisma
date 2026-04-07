@@ -1,0 +1,44 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Employee {
+  emp_no     Int       @id
+  birth_date DateTime
+  first_name String    @db.VarChar(14)
+  last_name  String    @db.VarChar(16)
+  hire_date  DateTime
+  dept_emps  DeptEmp[]
+
+  @@map("employees")
+}
+
+model Department {
+  dept_no   String   @id @db.Char(4)
+  dept_name String   @db.VarChar(40) @unique
+  dept_emps DeptEmp[]
+
+  @@map("departments")
+}
+
+model DeptEmp {
+  emp_no     Int
+  dept_no    String     @db.Char(4)
+  from_date  DateTime
+  to_date    DateTime
+  employee   Employee   @relation(fields: [emp_no], references: [emp_no], onDelete: Cascade)
+  department Department @relation(fields: [dept_no], references: [dept_no], onDelete: Cascade)
+
+  @@id([emp_no, dept_no])
+  @@map("dept_emp")
+}
